@@ -1,0 +1,28 @@
+trackfileAll = dir("tr_all*.mat");
+fps = 30;
+trackfileAll = struct2array(load(trackfileAll(1).name)); 
+ParticleNames = unique(trackfileAll(:,6));
+NumOfSteps = length(unique(trackfileAll(:,5)));
+radius = 0.75; % micrometer
+lx = 30*radius;
+ResetEventsIdx = find(trackfileAll(:,8) == 1);
+ResetEventSteps = trackfileAll(ResetEventsIdx, 5);
+for i = 1:NumOfSteps
+    checkReset = find(ResetEventSteps == i+1);
+    stepframe = trackfileAll(trackfileAll(:,5)==i,:); % bring the ith position for all particles
+    if isnan(checkReset)
+        viscircles([stepframe(:,1),stepframe(:,2)], ones(length(stepframe(:,1)),1)*radius,'Color','blue');
+        xlim([-lx lx]);
+        ylim([-lx lx]);
+    else
+        ResetParticleIdx = find(stepframe(:,8)==1);
+        NotResetparticle = setdiff(ParticleNames,ResetParticleIdx)
+        viscircles([stepframe(NotResetparticle,1),stepframe(NotResetparticle,2)], ones(length(NotResetparticle),1)*radius,'Color','blue');
+        viscircles([stepframe(ResetParticleIdx,1),stepframe(ResetParticleIdx,2)], radius,'Color','red');
+        xlim([-lx lx]);
+        ylim([-lx lx]);
+    end
+    pause(1/fps);
+end
+        
+    
